@@ -1,0 +1,108 @@
+@model IEnumerable<PharmacyIMS.Models.Product>
+@{
+    ViewData["Title"] = "المنتجات";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold"><i class="bi bi-box-seam me-2"></i>إدارة المنتجات</h3>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i> إضافة منتج جديد
+    </a>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form asp-action="Index" method="get" class="row g-2 align-items-center">
+            <div class="col-md-4">
+                <input type="text" name="searchTerm" value="@ViewBag.CurrentSearch" class="form-control" placeholder="بحث بالاسم أو SKU..." />
+            </div>
+            <div class="col-md-3">
+                <select name="categoryId" class="form-select" asp-items="ViewBag.Categories">
+                    <option value="">-- كل الفئات --</option>
+                </select>
+            </div>
+            <div class="col-md-3 form-check form-switch d-flex align-items-center">
+                <input class="form-check-input me-2" type="checkbox" name="lowStockOnly" value="true" id="lowStockOnly" @(ViewBag.LowStockOnly == true ? "checked" : "") />
+                <label class="form-check-label" for="lowStockOnly">
+                    <i class="bi bi-exclamation-triangle text-danger"></i> عرض المنتجات منخفضة المخزون فقط
+                </label>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary w-100"><i class="bi bi-search"></i> بحث / فلترة</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>SKU</th>
+                    <th>اسم المنتج</th>
+                    <th>الفئة</th>
+                    <th>السعر</th>
+                    <th>الكمية</th>
+                    <th>الحالة</th>
+                    <th class="text-center">الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr class="@(item.IsLowStock ? "table-danger" : "")">
+                        <td>@item.SKU</td>
+                        <td class="fw-semibold">@item.ProductName</td>
+                        <td>@item.Category?.CategoryName</td>
+                        <td>@item.UnitPrice.ToString("N2")</td>
+                        <td>@item.StockQuantity</td>
+                        <td>
+                            @if (item.IsLowStock)
+                            {
+                                <span class="badge badge-low-stock"><i class="bi bi-exclamation-triangle"></i> منخفض</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success">متوفر</span>
+                            }
+                        </td>
+                        <td class="text-center">
+                            <a asp-action="Details" asp-route-id="@item.ProductID" class="btn btn-sm btn-outline-info"><i class="bi bi-eye"></i></a>
+                            <a asp-action="Edit" asp-route-id="@item.ProductID" class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil"></i></a>
+                            <a asp-action="Delete" asp-route-id="@item.ProductID" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="7" class="text-center text-muted py-4">لا توجد منتجات مطابقة</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@{
+    int currentPage = ViewBag.CurrentPage;
+    int totalPages = ViewBag.TotalPages;
+}
+@if (totalPages > 1)
+{
+    <nav class="mt-3">
+        <ul class="pagination justify-content-center">
+            @for (int i = 1; i <= totalPages; i++)
+            {
+                <li class="page-item @(i == currentPage ? "active" : "")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-page="@i"
+                       asp-route-searchTerm="@ViewBag.CurrentSearch"
+                       asp-route-categoryId="@ViewBag.CurrentCategory"
+                       asp-route-lowStockOnly="@ViewBag.LowStockOnly">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}
+<p class="text-muted text-center">إجمالي النتائج: @ViewBag.TotalItems</p>

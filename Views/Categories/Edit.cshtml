@@ -1,0 +1,31 @@
+@model PharmacyIMS.Models.Category
+@{
+    ViewData["Title"] = "تعديل فئة";
+}
+
+<h3 class="fw-bold mb-4"><i class="bi bi-pencil-square me-2"></i>تعديل الفئة</h3>
+
+<div class="card">
+    <div class="card-body">
+        <form asp-action="Edit">
+            <input type="hidden" asp-for="CategoryID" />
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            <div class="mb-3">
+                <label asp-for="CategoryName" class="form-label"></label>
+                <input asp-for="CategoryName" class="form-control" />
+                <span asp-validation-for="CategoryName" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label"></label>
+                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i> حفظ التعديلات</button>
+            <a asp-action="Index" class="btn btn-secondary">إلغاء</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

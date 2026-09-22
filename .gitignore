@@ -1,0 +1,32 @@
+## .NET / Visual Studio standard gitignore
+bin/
+obj/
+*.user
+*.suo
+.vs/
+.vscode/
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Bb]in/
+[Oo]bj/
+
+# Rider / VS Code
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# EF Core / local DB
+*.mdf
+*.ldf
+
+# User secrets / local settings that shouldn't be committed
+appsettings.Development.json
+secrets.json

@@ -1,0 +1,67 @@
+@model PharmacyIMS.Models.Product
+@{
+    ViewData["Title"] = "تعديل منتج";
+}
+
+<h3 class="fw-bold mb-4"><i class="bi bi-pencil-square me-2"></i>تعديل المنتج</h3>
+
+<div class="card">
+    <div class="card-body">
+        <form asp-action="Edit">
+            <input type="hidden" asp-for="ProductID" />
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label asp-for="SKU" class="form-label"></label>
+                    <input asp-for="SKU" class="form-control" />
+                    <span asp-validation-for="SKU" class="text-danger"></span>
+                </div>
+                <div class="col-md-8">
+                    <label asp-for="ProductName" class="form-label"></label>
+                    <input asp-for="ProductName" class="form-control" />
+                    <span asp-validation-for="ProductName" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Manufacturer" class="form-label"></label>
+                    <input asp-for="Manufacturer" class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="DosageForm" class="form-label"></label>
+                    <input asp-for="DosageForm" class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="CategoryID" class="form-label"></label>
+                    <select asp-for="CategoryID" class="form-select" asp-items="ViewBag.Categories"></select>
+                    <span asp-validation-for="CategoryID" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="ExpiryDate" class="form-label"></label>
+                    <input asp-for="ExpiryDate" class="form-control" type="date" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="UnitPrice" class="form-label"></label>
+                    <input asp-for="UnitPrice" class="form-control" />
+                    <span asp-validation-for="UnitPrice" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="StockQuantity" class="form-label"></label>
+                    <input asp-for="StockQuantity" class="form-control" />
+                    <span asp-validation-for="StockQuantity" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="LowStockThreshold" class="form-label"></label>
+                    <input asp-for="LowStockThreshold" class="form-control" />
+                    <span asp-validation-for="LowStockThreshold" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i> حفظ التعديلات</button>
+                <a asp-action="Index" class="btn btn-secondary">إلغاء</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

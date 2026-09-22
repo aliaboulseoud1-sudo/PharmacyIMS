@@ -1,0 +1,62 @@
+@model PharmacyIMS.Models.Product
+@{
+    ViewData["Title"] = "تفاصيل المنتج";
+}
+
+<h3 class="fw-bold mb-4"><i class="bi bi-capsule me-2"></i>تفاصيل المنتج</h3>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">SKU</dt>
+            <dd class="col-sm-9">@Model.SKU</dd>
+            <dt class="col-sm-3">اسم المنتج</dt>
+            <dd class="col-sm-9">@Model.ProductName</dd>
+            <dt class="col-sm-3">الشركة المصنعة</dt>
+            <dd class="col-sm-9">@Model.Manufacturer</dd>
+            <dt class="col-sm-3">الشكل الصيدلاني</dt>
+            <dd class="col-sm-9">@Model.DosageForm</dd>
+            <dt class="col-sm-3">الفئة</dt>
+            <dd class="col-sm-9">@Model.Category?.CategoryName</dd>
+            <dt class="col-sm-3">السعر</dt>
+            <dd class="col-sm-9">@Model.UnitPrice.ToString("N2")</dd>
+            <dt class="col-sm-3">الكمية المتوفرة</dt>
+            <dd class="col-sm-9">
+                @Model.StockQuantity
+                @if (Model.IsLowStock)
+                {
+                    <span class="badge badge-low-stock ms-2">مخزون منخفض</span>
+                }
+            </dd>
+            <dt class="col-sm-3">حد إعادة الطلب</dt>
+            <dd class="col-sm-9">@Model.LowStockThreshold</dd>
+            <dt class="col-sm-3">تاريخ الصلاحية</dt>
+            <dd class="col-sm-9">@(Model.ExpiryDate?.ToString("yyyy-MM-dd") ?? "غير محدد")</dd>
+        </dl>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header fw-bold">الموردون المرتبطون بهذا المنتج</div>
+    <div class="card-body table-responsive">
+        <table class="table table-sm">
+            <thead><tr><th>المورد</th><th>رمز المورد</th><th>سعر التعاقد</th><th>مدة التوريد</th></tr></thead>
+            <tbody>
+                @foreach (var sp in Model.SupplierProducts)
+                {
+                    <tr>
+                        <td>@sp.Supplier?.SupplierName</td>
+                        <td>@sp.SupplierSKU</td>
+                        <td>@sp.ContractPrice.ToString("N2")</td>
+                        <td>@sp.LeadTimeDays يوم</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="mt-3">
+    <a asp-action="Edit" asp-route-id="@Model.ProductID" class="btn btn-warning"><i class="bi bi-pencil me-1"></i>تعديل</a>
+    <a asp-action="Index" class="btn btn-secondary">رجوع للقائمة</a>
+</div>

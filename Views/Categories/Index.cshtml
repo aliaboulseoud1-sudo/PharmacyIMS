@@ -1,0 +1,60 @@
+@model IEnumerable<PharmacyIMS.Models.Category>
+@{
+    ViewData["Title"] = "الفئات";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold"><i class="bi bi-tags me-2"></i>إدارة الفئات</h3>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i> إضافة فئة جديدة
+    </a>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form asp-action="Index" method="get" class="row g-2">
+            <div class="col-md-6">
+                <input type="text" name="searchTerm" value="@ViewData["CurrentFilter"]" class="form-control" placeholder="بحث باسم الفئة..." />
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary w-100"><i class="bi bi-search"></i> بحث</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>اسم الفئة</th>
+                    <th>الوصف</th>
+                    <th>عدد المنتجات</th>
+                    <th class="text-center">الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.CategoryID</td>
+                        <td class="fw-semibold">@item.CategoryName</td>
+                        <td>@item.Description</td>
+                        <td><span class="badge bg-secondary">@item.Products.Count</span></td>
+                        <td class="text-center">
+                            <a asp-action="Details" asp-route-id="@item.CategoryID" class="btn btn-sm btn-outline-info"><i class="bi bi-eye"></i></a>
+                            <a asp-action="Edit" asp-route-id="@item.CategoryID" class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil"></i></a>
+                            <a asp-action="Delete" asp-route-id="@item.CategoryID" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="5" class="text-center text-muted py-4">لا توجد فئات حالياً</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
