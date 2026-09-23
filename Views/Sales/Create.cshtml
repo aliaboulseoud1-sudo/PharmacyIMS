@@ -1,0 +1,260 @@
+@model PharmacyIMS.ViewModels.CreateSaleViewModel
+@{
+    ViewData["Title"] = "عملية بيع جديدة";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold"><i class="bi bi-cart-check me-2"></i>عملية بيع جديدة (نقطة البيع)</h3>
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-right me-1"></i> عودة لسجل المبيعات
+    </a>
+</div>
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+<div id="clientErrorBox" class="alert alert-danger d-none" role="alert"></div>
+
+<form asp-action="Create" method="post" id="saleForm">
+    @Html.AntiForgeryToken()
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="CustomerInfo" class="form-label"></label>
+                    <input asp-for="CustomerInfo" class="form-control" placeholder="اسم العميل أو رقم الهاتف (اختياري)" />
+                    <span asp-validation-for="CustomerInfo" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="SaleDate" class="form-label"></label>
+                    <input type="datetime-local" name="SaleDate" id="SaleDate" class="form-control"
+                           value="@Model.SaleDate.ToString("yyyy-MM-ddTHH:mm")" />
+                    <span asp-validation-for="SaleDate" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <span class="fw-semibold"><i class="bi bi-basket me-1"></i> أصناف الفاتورة</span>
+            <button type="button" id="addItemBtn" class="btn btn-sm btn-success">
+                <i class="bi bi-plus-circle me-1"></i> إضافة صنف
+            </button>
+        </div>
+        <div class="card-body table-responsive">
+            <table class="table align-middle" id="itemsTable">
+                <thead>
+                    <tr>
+                        <th style="min-width:240px">المنتج / الدواء</th>
+                        <th>المتوفر بالمخزون</th>
+                        <th>سعر الوحدة</th>
+                        <th style="width:120px">الكمية</th>
+                        <th>الإجمالي الفرعي</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="itemsBody">
+                    
+                </tbody>
+            </table>
+            <p id="emptyItemsMsg" class="text-muted text-center py-3">لا توجد أصناف مضافة بعد. اضغط "إضافة صنف" للبدء.</p>
+        </div>
+        <div class="card-footer bg-white text-end">
+            <span class="fs-5">إجمالي الفاتورة: <strong id="grandTotal">0.00</strong> ج.م</span>
+        </div>
+    </div>
+
+    <div class="text-end mb-5">
+        <button type="submit" class="btn btn-primary btn-lg">
+            <i class="bi bi-check-circle me-1"></i> إتمام عملية البيع
+        </button>
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        const productsData = @Html.Raw(ViewBag.ProductsJson ?? "[]");
+
+        let rowCounter = 0;
+        const itemsBody = document.getElementById('itemsBody');
+        const emptyItemsMsg = document.getElementById('emptyItemsMsg');
+        const grandTotalEl = document.getElementById('grandTotal');
+        const clientErrorBox = document.getElementById('clientErrorBox');
+
+        function buildProductOptions(selectedId) {
+            let html = '<option value="">-- اختر المنتج --</option>';
+            productsData.forEach(p => {
+                const disabled = p.stockQuantity <= 0 ? 'disabled' : '';
+                const selected = (selectedId && Number(selectedId) === p.productID) ? 'selected' : '';
+                html += `<option value="${p.productID}" ${selected} ${disabled}>${p.productName} (${p.sku})${p.stockQuantity <= 0 ? ' - نفذ من المخزون' : ''}</option>`;
+            });
+            return html;
+        }
+
+        function addRow() {
+            const idx = rowCounter++;
+            const tr = document.createElement('tr');
+            tr.dataset.rowIndex = idx;
+            tr.innerHTML = `
+                <td>
+                    <select class="form-select product-select" name="Items[${idx}].ProductID">
+                        ${buildProductOptions()}
+                    </select>
+                </td>
+                <td class="stock-cell text-muted">-</td>
+                <td class="price-cell text-muted">-</td>
+                <td>
+                    <input type="number" min="1" step="1" class="form-control qty-input" name="Items[${idx}].Quantity" value="1" />
+                </td>
+                <td class="line-total fw-semibold">0.00</td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-sm btn-outline-danger remove-row-btn">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            `;
+            itemsBody.appendChild(tr);
+            wireRow(tr);
+            toggleEmptyMessage();
+        }
+
+        function wireRow(tr) {
+            const select = tr.querySelector('.product-select');
+            const qtyInput = tr.querySelector('.qty-input');
+
+            select.addEventListener('change', () => onProductChange(tr));
+            qtyInput.addEventListener('input', () => onQuantityChange(tr));
+            tr.querySelector('.remove-row-btn').addEventListener('click', () => {
+                tr.remove();
+                renumberRows();
+                toggleEmptyMessage();
+                recalcGrandTotal();
+            });
+        }
+
+        function getProduct(productId) {
+            return productsData.find(p => p.productID === Number(productId));
+        }
+
+        function onProductChange(tr) {
+            const select = tr.querySelector('.product-select');
+            const product = getProduct(select.value);
+            const stockCell = tr.querySelector('.stock-cell');
+            const priceCell = tr.querySelector('.price-cell');
+            const qtyInput = tr.querySelector('.qty-input');
+
+            if (product) {
+                stockCell.textContent = product.stockQuantity;
+                priceCell.textContent = product.unitPrice.toFixed(2);
+                qtyInput.max = product.stockQuantity;
+                if (Number(qtyInput.value) > product.stockQuantity) {
+                    qtyInput.value = product.stockQuantity > 0 ? product.stockQuantity : 1;
+                }
+            } else {
+                stockCell.textContent = '-';
+                priceCell.textContent = '-';
+                qtyInput.removeAttribute('max');
+            }
+            onQuantityChange(tr);
+        }
+
+        function onQuantityChange(tr) {
+            const select = tr.querySelector('.product-select');
+            const qtyInput = tr.querySelector('.qty-input');
+            const lineTotalCell = tr.querySelector('.line-total');
+            const product = getProduct(select.value);
+
+            qtyInput.classList.remove('is-invalid');
+
+            let qty = parseInt(qtyInput.value, 10);
+            if (isNaN(qty) || qty < 1) qty = 0;
+
+            if (product) {
+                if (qty > product.stockQuantity) {
+                    qtyInput.classList.add('is-invalid');
+                }
+                lineTotalCell.textContent = (qty * product.unitPrice).toFixed(2);
+            } else {
+                lineTotalCell.textContent = '0.00';
+            }
+
+            recalcGrandTotal();
+        }
+
+        function renumberRows() {
+            const rows = itemsBody.querySelectorAll('tr');
+            rows.forEach((tr, i) => {
+                tr.dataset.rowIndex = i;
+                tr.querySelector('.product-select').name = `Items[${i}].ProductID`;
+                tr.querySelector('.qty-input').name = `Items[${i}].Quantity`;
+            });
+            rowCounter = rows.length;
+        }
+
+        function recalcGrandTotal() {
+            let total = 0;
+            itemsBody.querySelectorAll('tr').forEach(tr => {
+                const select = tr.querySelector('.product-select');
+                const qtyInput = tr.querySelector('.qty-input');
+                const product = getProduct(select.value);
+                const qty = parseInt(qtyInput.value, 10) || 0;
+                if (product) total += qty * product.unitPrice;
+            });
+            grandTotalEl.textContent = total.toFixed(2);
+        }
+
+        function toggleEmptyMessage() {
+            const hasRows = itemsBody.querySelectorAll('tr').length > 0;
+            emptyItemsMsg.classList.toggle('d-none', hasRows);
+        }
+
+        document.getElementById('addItemBtn').addEventListener('click', addRow);
+
+        document.getElementById('saleForm').addEventListener('submit', function (e) {
+            clientErrorBox.classList.add('d-none');
+            clientErrorBox.innerHTML = '';
+
+            const rows = itemsBody.querySelectorAll('tr');
+            if (rows.length === 0) {
+                e.preventDefault();
+                showClientError('يجب إضافة صنف واحد على الأقل للفاتورة');
+                return;
+            }
+
+            const errors = [];
+            rows.forEach(tr => {
+                const select = tr.querySelector('.product-select');
+                const qtyInput = tr.querySelector('.qty-input');
+                const product = getProduct(select.value);
+                const qty = parseInt(qtyInput.value, 10) || 0;
+
+                if (!select.value) {
+                    errors.push('يجب اختيار منتج لكل صنف في الفاتورة');
+                    return;
+                }
+                if (qty < 1) {
+                    errors.push(`الكمية غير صحيحة للمنتج ${product ? product.productName : ''}`);
+                    return;
+                }
+                if (product && qty > product.stockQuantity) {
+                    errors.push(`الكمية المتاحة من ${product.productName} هي ${product.stockQuantity} فقط`);
+                }
+            });
+
+            if (errors.length > 0) {
+                e.preventDefault();
+                showClientError([...new Set(errors)].join('<br />'));
+            }
+        });
+
+        function showClientError(message) {
+            clientErrorBox.innerHTML = '<i class="bi bi-exclamation-triangle me-1"></i>' + message;
+            clientErrorBox.classList.remove('d-none');
+            clientErrorBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        addRow();
+        toggleEmptyMessage();
+    </script>
+}

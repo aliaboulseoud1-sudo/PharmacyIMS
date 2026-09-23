@@ -1,0 +1,94 @@
+@model IEnumerable<PharmacyIMS.Models.Sale>
+@{
+    ViewData["Title"] = "المبيعات";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold"><i class="bi bi-receipt me-2"></i>سجل المبيعات</h3>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i> عملية بيع جديدة
+    </a>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form asp-action="Index" method="get" class="row g-2 align-items-center">
+            <div class="col-md-4">
+                <input type="text" name="searchTerm" value="@ViewBag.CurrentSearch" class="form-control" placeholder="بحث باسم العميل أو رقم الهاتف..." />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small text-muted mb-0">من تاريخ</label>
+                <input type="date" name="fromDate" value="@ViewBag.FromDate" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small text-muted mb-0">إلى تاريخ</label>
+                <input type="date" name="toDate" value="@ViewBag.ToDate" class="form-control" />
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary w-100 mt-4 mt-md-0"><i class="bi bi-search"></i> بحث</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>رقم الفاتورة</th>
+                    <th>التاريخ / الوقت</th>
+                    <th>بيانات العميل</th>
+                    <th>عدد الأصناف</th>
+                    <th>إجمالي المبلغ</th>
+                    <th class="text-center">الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var sale in Model)
+                {
+                    <tr>
+                        <td class="fw-semibold">#@sale.SaleID.ToString("D5")</td>
+                        <td>@sale.SaleDate.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>@(string.IsNullOrWhiteSpace(sale.CustomerInfo) ? "عميل نقدي" : sale.CustomerInfo)</td>
+                        <td>@sale.SaleItems.Sum(i => i.Quantity)</td>
+                        <td>@sale.TotalAmount.ToString("N2") ج.م</td>
+                        <td class="text-center">
+                            <a asp-action="Details" asp-route-id="@sale.SaleID" class="btn btn-sm btn-outline-info">
+                                <i class="bi bi-eye"></i> عرض الفاتورة
+                            </a>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="6" class="text-center text-muted py-4">لا توجد عمليات بيع مطابقة</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@{
+    int currentPage = ViewBag.CurrentPage;
+    int totalPages = ViewBag.TotalPages;
+}
+@if (totalPages > 1)
+{
+    <nav class="mt-3">
+        <ul class="pagination justify-content-center">
+            @for (int i = 1; i <= totalPages; i++)
+            {
+                <li class="page-item @(i == currentPage ? "active" : "")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-page="@i"
+                       asp-route-searchTerm="@ViewBag.CurrentSearch"
+                       asp-route-fromDate="@ViewBag.FromDate"
+                       asp-route-toDate="@ViewBag.ToDate">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}
+<p class="text-muted text-center">إجمالي النتائج: @ViewBag.TotalItems</p>
