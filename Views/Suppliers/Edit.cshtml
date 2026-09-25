@@ -1,0 +1,131 @@
+@model PharmacyIMS.ViewModels.SupplierViewModel
+
+@{
+    ViewData["Title"] = "تعديل مورد";
+}
+
+<h3 class="mb-4">
+    <i class="bi bi-pencil-square"></i>
+    تعديل بيانات المورد
+</h3>
+
+<div class="row">
+    <div class="col-md-7">
+
+        <form asp-action="Edit"
+              method="post"
+              class="card p-4 shadow-sm">
+
+            <input type="hidden"
+                   asp-for="SupplierID" />
+
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger mb-3">
+            </div>
+
+
+            <div class="mb-3">
+                <label asp-for="SupplierName"
+                       class="form-label">
+                </label>
+
+                <input asp-for="SupplierName"
+                       class="form-control" />
+
+                <span asp-validation-for="SupplierName"
+                      class="text-danger">
+                </span>
+            </div>
+
+
+            <div class="mb-3">
+                <label asp-for="ContactName"
+                       class="form-label">
+                </label>
+
+                <input asp-for="ContactName"
+                       class="form-control" />
+
+                <span asp-validation-for="ContactName"
+                      class="text-danger">
+                </span>
+            </div>
+
+
+            <div class="mb-3">
+                <label asp-for="Phone"
+                       class="form-label">
+                </label>
+
+                <input asp-for="Phone"
+                       class="form-control"
+                       dir="ltr"
+                       maxlength="11" />
+
+                <span asp-validation-for="Phone"
+                      class="text-danger">
+                </span>
+            </div>
+
+
+            <div class="mb-3">
+                <label asp-for="Email"
+                       class="form-label">
+                </label>
+
+                <input asp-for="Email"
+                       class="form-control"
+                       dir="ltr" />
+
+                <span asp-validation-for="Email"
+                      class="text-danger">
+                </span>
+            </div>
+
+
+            <div class="mb-3">
+                <label asp-for="Address"
+                       class="form-label">
+                </label>
+
+                <textarea asp-for="Address"
+                          class="form-control"
+                          rows="2"></textarea>
+
+                <span asp-validation-for="Address"
+                      class="text-danger">
+                </span>
+            </div>
+
+
+            <div class="d-flex gap-2">
+
+                <button type="submit"
+                        class="btn btn-primary">
+
+                    <i class="bi bi-check-lg"></i>
+                    حفظ التعديلات
+
+                </button>
+
+                <a asp-action="Index"
+                   class="btn btn-secondary">
+
+                    إلغاء
+
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+
+@section Scripts {
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

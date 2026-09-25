@@ -1,0 +1,75 @@
+@model IEnumerable<PharmacyIMS.Models.Supplier>
+
+@{
+    ViewData["Title"] = "الموردين";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h3 class="mb-0"><i class="bi bi-truck"></i> الموردين</h3>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> إضافة مورد جديد
+    </a>
+</div>
+
+<form asp-action="Index" method="get" class="mb-3">
+    <div class="input-group">
+        <input type="text" name="searchTerm" value="@ViewData["CurrentFilter"]"
+               class="form-control" placeholder="ابحث بالاسم أو اسم المسؤول أو رقم الهاتف..." />
+        <button type="submit" class="btn btn-outline-secondary">
+            <i class="bi bi-search"></i> بحث
+        </button>
+        @if (!string.IsNullOrEmpty(ViewData["CurrentFilter"] as string))
+        {
+            <a asp-action="Index" class="btn btn-outline-danger">إلغاء</a>
+        }
+    </div>
+</form>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>اسم المورد</th>
+                    <th>اسم المسؤول</th>
+                    <th>الهاتف</th>
+                    <th>البريد الإلكتروني</th>
+                    <th class="text-center">الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.SupplierName</td>
+                        <td>@item.ContactName</td>
+                        <td>@item.Phone</td>
+                        <td>@item.Email</td>
+                        <td class="text-center">
+                            <a asp-action="Details" asp-route-id="@item.SupplierID"
+                               class="btn btn-sm btn-outline-info" title="التفاصيل">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a asp-action="Edit" asp-route-id="@item.SupplierID"
+                               class="btn btn-sm btn-outline-warning" title="تعديل">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@item.SupplierID"
+                               class="btn btn-sm btn-outline-danger" title="حذف">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">
+                            لا يوجد موردين مطابقين لبحثك حالياً.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
