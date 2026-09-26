@@ -1,0 +1,39 @@
+@model PharmacyIMS.Models.Supplier
+
+@{
+    ViewData["Title"] = "حذف مورد";
+    bool hasLinks = ViewData["HasLinks"] is bool b && b;
+    int productsCount = ViewData["LinkedProductsCount"] as int? ?? 0;
+    int purchasesCount = ViewData["LinkedPurchasesCount"] as int? ?? 0;
+}
+
+<h3 class="text-danger mb-4"><i class="bi bi-exclamation-triangle"></i> حذف المورد</h3>
+
+@if (hasLinks)
+{
+    <div class="alert alert-danger">
+        <strong>لا يمكن حذف هذا المورد.</strong><br />
+        هذا المورد مرتبط بـ @productsCount منتج/منتجات و @purchasesCount عملية/عمليات شراء.
+        يجب إزالة هذه الارتباطات أولاً من صفحة تفاصيل المورد قبل محاولة الحذف.
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">
+        هل أنت متأكد من رغبتك في حذف هذا المورد؟ لا يمكن التراجع عن هذا الإجراء.
+    </div>
+}
+
+<div class="card p-3 mb-3 shadow-sm">
+    <div><strong>اسم المورد:</strong> @Model.SupplierName</div>
+    <div><strong>اسم المسؤول:</strong> @Model.ContactName</div>
+    <div><strong>الهاتف:</strong> <span dir="ltr">@Model.Phone</span></div>
+</div>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="SupplierID" />
+    <button type="submit" class="btn btn-danger" @(hasLinks ? "disabled" : "")>
+        <i class="bi bi-trash"></i> تأكيد الحذف
+    </button>
+    <a asp-action="Index" class="btn btn-secondary">إلغاء</a>
+</form>

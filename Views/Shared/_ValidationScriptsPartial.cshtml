@@ -1,2 +1,18 @@
 ﻿<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
 <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+
+        // Validation أثناء الكتابة
+        $("input, textarea").on("input", function () {
+            $(this).valid();
+        });
+
+        // Validation بمجرد الخروج من الحقل
+        $("input, textarea").on("blur", function () {
+            $(this).valid();
+        });
+
+    });
+</script>

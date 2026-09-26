@@ -1,0 +1,132 @@
+@model PharmacyIMS.ViewModels.SupplierViewModel
+
+@{
+    ViewData["Title"] = "إضافة مورد";
+}
+
+<h3 class="mb-4">
+    <i class="bi bi-plus-circle"></i>
+    إضافة مورد جديد
+</h3>
+
+<div class="row">
+    <div class="col-md-7">
+
+        <form asp-action="Create"
+              method="post"
+              class="card p-4 shadow-sm">
+
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger mb-3">
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="SupplierName"
+                       class="form-label">
+                </label>
+
+                <input asp-for="SupplierName"
+                       class="form-control"
+                       placeholder="مثال: شركة النور للأدوية" />
+
+                <span asp-validation-for="SupplierName"
+                      class="text-danger">
+                </span>
+            </div>
+
+
+            <div class="mb-3">
+                <label asp-for="ContactName"
+                       class="form-label">
+                </label>
+
+                <input asp-for="ContactName"
+                       class="form-control"
+                       placeholder="مثال: أحمد محمد" />
+
+                <span asp-validation-for="ContactName"
+                      class="text-danger">
+                </span>
+            </div>
+
+
+            <div class="mb-3">
+                <label asp-for="Phone"
+                       class="form-label">
+                </label>
+
+                <input asp-for="Phone"
+                       class="form-control"
+                       dir="ltr"
+                       maxlength="11"
+                       placeholder="01012345678" />
+
+                <span asp-validation-for="Phone"
+                      class="text-danger">
+                </span>
+            </div>
+
+
+            <div class="mb-3">
+                <label asp-for="Email"
+                       class="form-label">
+                </label>
+
+                <input asp-for="Email"
+                       class="form-control"
+                       dir="ltr"
+                       placeholder="example@gmail.com" />
+
+                <span asp-validation-for="Email"
+                      class="text-danger">
+                </span>
+            </div>
+
+
+            <div class="mb-3">
+                <label asp-for="Address"
+                       class="form-label">
+                </label>
+
+                <textarea asp-for="Address"
+                          class="form-control"
+                          rows="2"
+                          placeholder="عنوان المورد"></textarea>
+
+                <span asp-validation-for="Address"
+                      class="text-danger">
+                </span>
+            </div>
+
+
+            <div class="d-flex gap-2">
+
+                <button type="submit"
+                        class="btn btn-primary">
+
+                    <i class="bi bi-check-lg"></i>
+                    حفظ
+
+                </button>
+
+                <a asp-action="Index"
+                   class="btn btn-secondary">
+
+                    إلغاء
+
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+
+@section Scripts {
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
