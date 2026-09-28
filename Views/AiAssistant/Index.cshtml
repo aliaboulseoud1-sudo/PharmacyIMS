@@ -1,0 +1,146 @@
+@{
+    ViewData["Title"] = "المساعد الذكي";
+}
+
+<h3 class="fw-bold mb-4"><i class="bi bi-robot me-2"></i>المساعد الذكي لإدارة الصيدلية</h3>
+
+<div class="row g-3">
+    <div class="col-lg-3">
+        <div class="card">
+            <div class="card-header fw-bold"><i class="bi bi-lightbulb me-1"></i> أسئلة سريعة</div>
+            <div class="card-body d-grid gap-2">
+                <button type="button" class="btn btn-outline-primary btn-sm quick-question-btn" data-question="ما هي الأدوية التي أوشكت على النفاد حالياً؟">
+                    ما هي الأدوية التي أوشكت على النفاد حالياً؟
+                </button>
+                <button type="button" class="btn btn-outline-primary btn-sm quick-question-btn" data-question="ما هي الأصناف الأكثر مبيعاً هذا الشهر؟">
+                    ما هي الأصناف الأكثر مبيعاً؟
+                </button>
+                <button type="button" class="btn btn-outline-primary btn-sm quick-question-btn" data-question="ملخص أداء المبيعات والمشتريات هذا الشهر.">
+                    ملخص أداء الشهر الحالي
+                </button>
+                <button type="button" class="btn btn-outline-primary btn-sm quick-question-btn" data-question="من هو أفضل مورد من ناحية السعر لكل منتج متوفر لدينا؟">
+                    أفضل مورد لكل منتج (سعراً)
+                </button>
+                <button type="button" class="btn btn-outline-primary btn-sm quick-question-btn" data-question="كم إجمالي قيمة المخزون الحالي وعدد الأصناف؟">
+                    إجمالي حالة المخزون
+                </button>
+            </div>
+        </div>
+        <div class="alert alert-info small mt-3">
+            <i class="bi bi-info-circle me-1"></i>
+            يعتمد المساعد على البيانات الفعلية المسجلة بالنظام حالياً (المنتجات، الموردين، المبيعات، المشتريات).
+        </div>
+    </div>
+
+=    <div class="col-lg-9">
+        <div class="card">
+            <div class="card-body">
+                <div id="chatWindow" class="chat-window mb-3">
+                    <div class="chat-bubble assistant">
+                        مرحباً! أنا المساعد الذكي لصيدليتك. يمكنك سؤالي عن المخزون، الأصناف منخفضة المخزون، الموردين، أو أداء المبيعات والمشتريات. كيف يمكنني مساعدتك؟
+                    </div>
+                </div>
+
+                <form id="chatForm" class="d-flex gap-2" autocomplete="off">
+                    @Html.AntiForgeryToken()
+                    <input type="text" id="messageInput" class="form-control" placeholder="اكتب سؤالك هنا..." maxlength="1000" required />
+                    <button type="submit" class="btn btn-primary px-4" id="sendBtn">
+                        <i class="bi bi-send"></i> إرسال
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const chatWindow = document.getElementById('chatWindow');
+            const chatForm = document.getElementById('chatForm');
+            const messageInput = document.getElementById('messageInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            let history = [];
+
+            function appendBubble(text, role) {
+                const bubble = document.createElement('div');
+                bubble.className = 'chat-bubble ' + (role === 'user' ? 'user' : 'assistant');
+                bubble.textContent = text;
+                chatWindow.appendChild(bubble);
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+                return bubble;
+            }
+
+            function appendTypingIndicator() {
+                const bubble = document.createElement('div');
+                bubble.className = 'chat-bubble typing';
+                bubble.id = 'typingIndicator';
+                bubble.textContent = 'المساعد يكتب...';
+                chatWindow.appendChild(bubble);
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+            }
+
+            function removeTypingIndicator() {
+                const el = document.getElementById('typingIndicator');
+                if (el) el.remove();
+            }
+
+            async function sendMessage(message) {
+                appendBubble(message, 'user');
+                history.push({ role: 'user', text: message });
+
+                messageInput.value = '';
+                messageInput.disabled = true;
+                sendBtn.disabled = true;
+                appendTypingIndicator();
+
+                try {
+                    const response = await fetch('@Url.Action("Ask", "AiAssistant")', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': token
+                        },
+                        body: JSON.stringify({
+                            message: message,
+                            history: history.slice(-8)
+                        })
+                    });
+
+                    const data = await response.json();
+                    removeTypingIndicator();
+
+                    if (data.success) {
+                        appendBubble(data.reply, 'assistant');
+                        history.push({ role: 'model', text: data.reply });
+                    } else {
+                        appendBubble(data.errorMessage || 'حدث خطأ ما، حاول مرة أخرى.', 'assistant');
+                    }
+                } catch (err) {
+                    removeTypingIndicator();
+                    appendBubble('تعذر الاتصال بالخادم. تحقق من اتصالك وحاول مرة أخرى.', 'assistant');
+                } finally {
+                    messageInput.disabled = false;
+                    sendBtn.disabled = false;
+                    messageInput.focus();
+                }
+            }
+
+            chatForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const message = messageInput.value.trim();
+                if (!message) return;
+                sendMessage(message);
+            });
+
+            document.querySelectorAll('.quick-question-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    const question = btn.getAttribute('data-question');
+                    sendMessage(question);
+                });
+            });
+        })();
+    </script>
+}

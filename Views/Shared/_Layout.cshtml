@@ -20,40 +20,43 @@
                 <h5 class="mt-2 mb-0 fw-bold">PharmacyIMS</h5>
                 <small class="text-white-50">نظام إدارة مخزون الصيدلية</small>
             </div>
+            @{
+                var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+            }
             <ul class="nav nav-pills flex-column gap-1">
                 <li class="nav-item">
-                    <a class="nav-link text-white" asp-controller="Dashboard" asp-action="Index">
+                    <a class="nav-link text-white @(currentController == "Dashboard" ? "active" : "")" asp-controller="Dashboard" asp-action="Index">
                         <i class="bi bi-speedometer2 me-2"></i> لوحة التحكم
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-white active" asp-controller="Categories" asp-action="Index">
+                    <a class="nav-link text-white @(currentController == "Categories" ? "active" : "")" asp-controller="Categories" asp-action="Index">
                         <i class="bi bi-tags me-2"></i> الفئات
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-white" asp-controller="Products" asp-action="Index">
+                    <a class="nav-link text-white @(currentController == "Products" ? "active" : "")" asp-controller="Products" asp-action="Index">
                         <i class="bi bi-box-seam me-2"></i> المنتجات
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-white" asp-controller="Suppliers" asp-action="Index">
+                    <a class="nav-link text-white @(currentController == "Suppliers" ? "active" : "")" asp-controller="Suppliers" asp-action="Index">
                         <i class="bi bi-truck me-2"></i> الموردين
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-white" asp-controller="Purchases" asp-action="Index">
+                    <a class="nav-link text-white @(currentController == "Purchases" ? "active" : "")" asp-controller="Purchases" asp-action="Index">
                         <i class="bi bi-cart-plus me-2"></i> المشتريات
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-white" asp-controller="Sales" asp-action="Index">
+                    <a class="nav-link text-white @(currentController == "Sales" ? "active" : "")" asp-controller="Sales" asp-action="Index">
                         <i class="bi bi-receipt me-2"></i> المبيعات
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-white" asp-controller="Assistant" asp-action="Index">
-                        <i class="bi bi-robot me-2"></i> المساعد الذكي (AI)
+                    <a class="nav-link text-white @(currentController == "AiAssistant" ? "active" : "")" asp-controller="AiAssistant" asp-action="Index">
+                        <i class="bi bi-robot me-2"></i> المساعد الذكي (AI Assistant)
                     </a>
                 </li>
             </ul>
