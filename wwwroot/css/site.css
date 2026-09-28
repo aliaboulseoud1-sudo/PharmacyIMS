@@ -37,3 +37,56 @@ body {
 .badge-low-stock {
     background-color: #dc3545;
 }
+
+.kpi-card {
+    transition: transform 0.15s ease;
+}
+.kpi-card:hover {
+    transform: translateY(-3px);
+}
+
+.chat-window {
+    height: 60vh;
+    min-height: 420px;
+    overflow-y: auto;
+    background: #f8f9fb;
+    border-radius: 12px;
+    padding: 1rem;
+}
+
+.chat-bubble {
+    max-width: 75%;
+    padding: 0.65rem 1rem;
+    border-radius: 16px;
+    margin-bottom: 0.75rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.chat-bubble.user {
+    background-color: #0d6efd;
+    color: #fff;
+    margin-inline-start: auto;
+    border-bottom-end-radius: 4px;
+}
+
+.chat-bubble.assistant {
+    background-color: #ffffff;
+    color: #212529;
+    border: 1px solid #e3e6ec;
+    margin-inline-end: auto;
+    border-bottom-start-radius: 4px;
+}
+
+.chat-bubble.typing {
+    background-color: #ffffff;
+    border: 1px solid #e3e6ec;
+    color: #6c757d;
+    font-style: italic;
+}
+
+.quick-question-btn {
+    white-space: normal;
+    text-align: right;
+}
