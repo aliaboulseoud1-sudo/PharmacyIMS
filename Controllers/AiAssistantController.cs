@@ -1,7 +1,3 @@
-using Microsoft.AspNetCore.Mvc;
-using PharmacyIMS.Services;
-using PharmacyIMS.viewModels;
-
 namespace PharmacyIMS.Controllers
 {
     public class AiAssistantController : Controller

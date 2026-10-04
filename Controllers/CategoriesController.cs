@@ -1,8 +1,3 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using PharmacyIMS.Data;
-using PharmacyIMS.Models;
-
 namespace PharmacyIMS.Controllers
 {
     public class CategoriesController : Controller

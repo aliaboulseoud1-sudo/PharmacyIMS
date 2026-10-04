@@ -1,7 +1,3 @@
-using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
-using PharmacyIMS.Models;
-
 namespace PharmacyIMS.Controllers
 {
     public class HomeController : Controller

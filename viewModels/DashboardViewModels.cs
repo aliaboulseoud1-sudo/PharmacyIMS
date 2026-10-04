@@ -1,5 +1,3 @@
-using PharmacyIMS.Models;
-
 namespace PharmacyIMS.viewModels
 {
     public class DashboardViewModels

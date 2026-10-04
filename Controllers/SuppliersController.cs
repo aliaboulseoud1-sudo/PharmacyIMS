@@ -1,9 +1,3 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using PharmacyIMS.Data;
-using PharmacyIMS.Models;
-using PharmacyIMS.ViewModels;
-
 namespace PharmacyIMS.Controllers
 {
     public class SuppliersController : Controller
@@ -15,7 +9,6 @@ namespace PharmacyIMS.Controllers
             _context = context;
         }
 
-        // GET: Suppliers
         public async Task<IActionResult> Index(string? searchTerm)
         {
             var suppliersQuery = _context.Suppliers.AsQueryable();
@@ -38,7 +31,6 @@ namespace PharmacyIMS.Controllers
         }
 
 
-        // GET: Suppliers/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -56,19 +48,16 @@ namespace PharmacyIMS.Controllers
         }
 
 
-        // GET: Suppliers/Create
         public IActionResult Create()
         {
             return View(new SupplierViewModel());
         }
 
 
-        // POST: Suppliers/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(SupplierViewModel vm)
         {
-            // Unique Supplier Name
             if (!string.IsNullOrWhiteSpace(vm.SupplierName))
             {
                 bool nameExists = await _context.Suppliers
@@ -82,7 +71,6 @@ namespace PharmacyIMS.Controllers
                 }
             }
 
-            // Unique Phone
             if (!string.IsNullOrWhiteSpace(vm.Phone))
             {
                 bool phoneExists = await _context.Suppliers
@@ -96,7 +84,6 @@ namespace PharmacyIMS.Controllers
                 }
             }
 
-            // Unique Email
             if (!string.IsNullOrWhiteSpace(vm.Email))
             {
                 bool emailExists = await _context.Suppliers
@@ -137,7 +124,6 @@ namespace PharmacyIMS.Controllers
         }
 
 
-        // GET: Suppliers/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -162,7 +148,6 @@ namespace PharmacyIMS.Controllers
         }
 
 
-        // POST: Suppliers/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
@@ -173,7 +158,6 @@ namespace PharmacyIMS.Controllers
                 return NotFound();
 
 
-            // Unique Supplier Name
             if (!string.IsNullOrWhiteSpace(vm.SupplierName))
             {
                 bool nameExists = await _context.Suppliers
@@ -190,7 +174,6 @@ namespace PharmacyIMS.Controllers
             }
 
 
-            // Unique Phone
             if (!string.IsNullOrWhiteSpace(vm.Phone))
             {
                 bool phoneExists = await _context.Suppliers
@@ -207,7 +190,6 @@ namespace PharmacyIMS.Controllers
             }
 
 
-            // Unique Email
             if (!string.IsNullOrWhiteSpace(vm.Email))
             {
                 bool emailExists = await _context.Suppliers
@@ -267,7 +249,6 @@ namespace PharmacyIMS.Controllers
         }
 
 
-        // GET: Suppliers/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -302,7 +283,6 @@ namespace PharmacyIMS.Controllers
         }
 
 
-        // POST: Suppliers/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

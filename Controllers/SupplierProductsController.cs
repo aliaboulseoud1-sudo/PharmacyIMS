@@ -1,10 +1,3 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using PharmacyIMS.Data;
-using PharmacyIMS.Models;
-using PharmacyIMS.ViewModels;
-
 namespace PharmacyIMS.Controllers
 {
     public class SupplierProductsController : Controller

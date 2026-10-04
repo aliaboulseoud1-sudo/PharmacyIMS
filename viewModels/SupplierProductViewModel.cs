@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc.Rendering;
-
-namespace PharmacyIMS.ViewModels
+﻿namespace PharmacyIMS.ViewModels
 {
     public class SupplierProductViewModel
     {

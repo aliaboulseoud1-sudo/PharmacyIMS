@@ -1,8 +1,3 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using PharmacyIMS.Data;
-using PharmacyIMS.viewModels;
-
 namespace PharmacyIMS.Controllers
 {
     public class DashboardController : Controller

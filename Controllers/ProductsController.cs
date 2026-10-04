@@ -1,9 +1,3 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using PharmacyIMS.Data;
-using PharmacyIMS.Models;
-
 namespace PharmacyIMS.Controllers
 {
     public class ProductsController : Controller

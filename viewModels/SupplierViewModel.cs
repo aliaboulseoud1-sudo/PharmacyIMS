@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace PharmacyIMS.ViewModels
+﻿namespace PharmacyIMS.ViewModels
 {
     public class SupplierViewModel
     {

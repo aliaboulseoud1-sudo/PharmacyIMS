@@ -1,11 +1,3 @@
-using System.Text.Json;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using PharmacyIMS.Data;
-using PharmacyIMS.Models;
-using PharmacyIMS.ViewModels;
-
 namespace PharmacyIMS.Controllers
 {
     public class PurchasesController : Controller
@@ -18,7 +10,6 @@ namespace PharmacyIMS.Controllers
             _context = context;
         }
 
-        // GET: Purchases
         public async Task<IActionResult> Index(string? searchTerm, DateTime? fromDate, DateTime? toDate, int page = 1)
         {
             var query = _context.Purchases
@@ -63,7 +54,6 @@ namespace PharmacyIMS.Controllers
             return View(purchases);
         }
 
-        // GET: Purchases/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -79,19 +69,16 @@ namespace PharmacyIMS.Controllers
             return View(purchase);
         }
 
-        // GET: Purchases/Create
         public async Task<IActionResult> Create()
         {
             await PopulateLookupsViewBagAsync();
             return View(new CreatePurchaseViewModel { PurchaseDate = DateTime.Now });
         }
 
-        // POST: Purchases/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreatePurchaseViewModel model)
         {
-            // Drop empty/incomplete rows the same way SalesController does
             model.Items = model.Items?
                 .Where(i => i.ProductID > 0 && i.Quantity > 0 && i.UnitCost > 0)
                 .ToList() ?? new List<PurchaseItemInputModel>();
@@ -118,14 +105,12 @@ namespace PharmacyIMS.Controllers
                 return View(model);
             }
 
-            // Group by product in case the same product was added in more than one row
             var groupedItems = model.Items
                 .GroupBy(i => i.ProductID)
                 .Select(g => new
                 {
                     ProductID = g.Key,
                     Quantity = g.Sum(x => x.Quantity),
-                    // Weighted average unit cost if the same product appears more than once
                     UnitCost = Math.Round(g.Sum(x => x.Quantity * x.UnitCost) / g.Sum(x => x.Quantity), 2)
                 })
                 .ToList();
@@ -143,8 +128,6 @@ namespace PharmacyIMS.Controllers
                 return View(model);
             }
 
-            // Database transaction: guarantees the purchase header, its line items and
-            // the stock increase on every product either all succeed or all roll back.
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
@@ -171,7 +154,6 @@ namespace PharmacyIMS.Controllers
                     purchase.PurchaseItems.Add(purchaseItem);
                     total += item.Quantity * item.UnitCost;
 
-                    // Core business rule: incoming purchase quantity increases stock
                     product.StockQuantity += item.Quantity;
                 }
 

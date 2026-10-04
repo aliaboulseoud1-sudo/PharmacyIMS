@@ -1,8 +1,3 @@
-using System.Text;
-using System.Text.Json;
-using Microsoft.Extensions.Options;
-using PharmacyIMS.viewModels;
-
 namespace PharmacyIMS.Services
 {
     public class GeminiAiService : IAiAssistantService

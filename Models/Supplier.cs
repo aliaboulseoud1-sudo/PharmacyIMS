@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace PharmacyIMS.Models
 {
     public class Supplier

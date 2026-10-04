@@ -1,5 +1,3 @@
-using PharmacyIMS.viewModels;
-
 namespace PharmacyIMS.Services
 {
     public interface IAiAssistantService
