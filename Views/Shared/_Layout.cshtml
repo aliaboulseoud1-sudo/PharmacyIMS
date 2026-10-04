@@ -148,6 +148,12 @@
             }
         });
     </script>
+
+    @if (currentController != "AiAssistant")
+    {
+        @await Html.PartialAsync("_AiChatWidget")
+    }
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
