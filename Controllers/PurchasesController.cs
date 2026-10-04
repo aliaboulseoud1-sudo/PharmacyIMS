@@ -1,5 +1,6 @@
 namespace PharmacyIMS.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class PurchasesController : Controller
     {
         private readonly ApplicationDbContext _context;

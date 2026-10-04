@@ -1,4 +1,4 @@
-@model PharmacyIMS.Models.Supplier
+@model Supplier
 
 @{
     ViewData["Title"] = "تفاصيل المورد";
@@ -58,13 +58,16 @@
                                class="btn btn-sm btn-outline-warning" title="تعديل شروط التعاقد">
                                 <i class="bi bi-pencil"></i>
                             </a>
-                            <form asp-controller="SupplierProducts" asp-action="Delete" asp-route-id="@sp.SupplierProductID"
-                                  method="post" class="d-inline"
-                                  onsubmit="return confirm('هل أنت متأكد من إلغاء ربط هذا المنتج عن المورد؟');">
-                                <button type="submit" class="btn btn-sm btn-outline-danger" title="إلغاء الربط">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </form>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <form asp-controller="SupplierProducts" asp-action="Delete" asp-route-id="@sp.SupplierProductID"
+                                      method="post" class="d-inline"
+                                      onsubmit="return confirm('هل أنت متأكد من إلغاء ربط هذا المنتج عن المورد؟');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="إلغاء الربط">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            }
                         </td>
                     </tr>
                 }

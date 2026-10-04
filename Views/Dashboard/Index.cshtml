@@ -50,7 +50,7 @@
             </div>
         </div>
     </div>
-    <div class="col-6 col-lg-4">
+    <div class="@(User.IsInRole("Admin") ? "col-6 col-lg-4" : "col-12")">
         <div class="card kpi-card border-start border-4 border-danger">
             <div class="card-body d-flex justify-content-between align-items-center">
                 <div>
@@ -61,32 +61,35 @@
             </div>
         </div>
     </div>
-    <div class="col-6 col-lg-4">
-        <div class="card kpi-card border-start border-4 border-success">
-            <div class="card-body d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="text-muted small">إجمالي إيرادات المبيعات</div>
-                    <div class="fs-4 fw-bold">@Model.TotalSalesRevenue.ToString("N2")</div>
+    @if (User.IsInRole("Admin"))
+    {
+        <div class="col-6 col-lg-4">
+            <div class="card kpi-card border-start border-4 border-success">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small">إجمالي إيرادات المبيعات</div>
+                        <div class="fs-4 fw-bold">@Model.TotalSalesRevenue.ToString("N2")</div>
+                    </div>
+                    <i class="bi bi-graph-up-arrow fs-1 text-success opacity-50"></i>
                 </div>
-                <i class="bi bi-graph-up-arrow fs-1 text-success opacity-50"></i>
             </div>
         </div>
-    </div>
-    <div class="col-12 col-lg-4">
-        <div class="card kpi-card border-start border-4 border-warning">
-            <div class="card-body d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="text-muted small">إجمالي تكلفة المشتريات</div>
-                    <div class="fs-4 fw-bold">@Model.TotalPurchaseCost.ToString("N2")</div>
+        <div class="col-12 col-lg-4">
+            <div class="card kpi-card border-start border-4 border-warning">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small">إجمالي تكلفة المشتريات</div>
+                        <div class="fs-4 fw-bold">@Model.TotalPurchaseCost.ToString("N2")</div>
+                    </div>
+                    <i class="bi bi-cart-check fs-1 text-warning opacity-50"></i>
                 </div>
-                <i class="bi bi-cart-check fs-1 text-warning opacity-50"></i>
             </div>
         </div>
-    </div>
+    }
 </div>
 
 <div class="row g-3 mb-4">
-    <div class="col-lg-5">
+    <div class="@(User.IsInRole("Admin") ? "col-lg-5" : "col-12")">
         <div class="card h-100">
             <div class="card-header fw-bold"><i class="bi bi-award me-1"></i> الأصناف الأكثر مبيعاً (Top 5)</div>
             <div class="card-body">
@@ -101,14 +104,17 @@
             </div>
         </div>
     </div>
-    <div class="col-lg-7">
-        <div class="card h-100">
-            <div class="card-header fw-bold"><i class="bi bi-graph-up me-1"></i> المبيعات مقابل المشتريات (آخر 6 أشهر)</div>
-            <div class="card-body">
-                <canvas id="salesVsPurchasesChart" height="230"></canvas>
+    @if (User.IsInRole("Admin"))
+    {
+        <div class="col-lg-7">
+            <div class="card h-100">
+                <div class="card-header fw-bold"><i class="bi bi-graph-up me-1"></i> المبيعات مقابل المشتريات (آخر 6 أشهر)</div>
+                <div class="card-body">
+                    <canvas id="salesVsPurchasesChart" height="230"></canvas>
+                </div>
             </div>
         </div>
-    </div>
+    }
 </div>
 
 <div class="card mb-4">
@@ -135,9 +141,12 @@
                             <td>@p.StockQuantity</td>
                             <td>@p.LowStockThreshold</td>
                             <td class="text-center">
-                                <a asp-controller="Purchases" asp-action="Create" class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-cart-plus"></i> إعادة الطلب
-                                </a>
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <a asp-controller="Purchases" asp-action="Create" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-cart-plus"></i> إعادة الطلب
+                                    </a>
+                                }
                                 <a asp-controller="Products" asp-action="Details" asp-route-id="@p.ProductID" class="btn btn-sm btn-outline-secondary">
                                     <i class="bi bi-eye"></i>
                                 </a>
@@ -154,13 +163,19 @@
     </div>
 </div>
 
+@{
+    var visibleActivity = User.IsInRole("Admin")
+        ? Model.RecentActivity
+        : Model.RecentActivity.Where(a => a.Type != "شراء").ToList();
+}
+
 <div class="card">
     <div class="card-header fw-bold"><i class="bi bi-clock-history me-1"></i> سجل الأنشطة الأخيرة</div>
     <div class="card-body">
-        @if (Model.RecentActivity.Any())
+        @if (visibleActivity.Any())
         {
             <ul class="list-group list-group-flush">
-                @foreach (var activity in Model.RecentActivity)
+                @foreach (var activity in visibleActivity)
                 {
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <div>
@@ -208,39 +223,44 @@
             </text>
         }
 
-        const trendCtx = document.getElementById('salesVsPurchasesChart');
-        new Chart(trendCtx, {
-            type: 'line',
-            data: {
-                labels: @Html.Raw(Json.Serialize(Model.MonthLabels)),
-                datasets: [
-                    {
-                        label: 'المبيعات',
-                        data: @Html.Raw(Json.Serialize(Model.MonthlySales)),
-                        borderColor: '#198754',
-                        backgroundColor: 'rgba(25,135,84,0.15)',
-                        tension: 0.3,
-                        fill: true
-                    },
-                    {
-                        label: 'المشتريات',
-                        data: @Html.Raw(Json.Serialize(Model.MonthlyPurchases)),
-                        borderColor: '#fd7e14',
-                        backgroundColor: 'rgba(253,126,20,0.15)',
-                        tension: 0.3,
-                        fill: true
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { position: 'bottom', labels: { font: { family: 'Cairo' } } }
+        @if (User.IsInRole("Admin"))
+        {
+            <text>
+            const trendCtx = document.getElementById('salesVsPurchasesChart');
+            new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: @Html.Raw(Json.Serialize(Model.MonthLabels)),
+                    datasets: [
+                        {
+                            label: 'المبيعات',
+                            data: @Html.Raw(Json.Serialize(Model.MonthlySales)),
+                            borderColor: '#198754',
+                            backgroundColor: 'rgba(25,135,84,0.15)',
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'المشتريات',
+                            data: @Html.Raw(Json.Serialize(Model.MonthlyPurchases)),
+                            borderColor: '#fd7e14',
+                            backgroundColor: 'rgba(253,126,20,0.15)',
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
                 },
-                scales: {
-                    y: { beginAtZero: true }
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { font: { family: 'Cairo' } } }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
                 }
-            }
-        });
+            });
+            </text>
+        }
     </script>
 }

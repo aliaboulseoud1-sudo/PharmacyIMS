@@ -48,7 +48,7 @@ namespace PharmacyIMS.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(category);
+                _context.Categories.Add(category);
                 await _context.SaveChangesAsync();
                 TempData["ToastMessage"] = "تم إضافة الفئة بنجاح";
                 TempData["ToastType"] = "success";
@@ -77,7 +77,7 @@ namespace PharmacyIMS.Controllers
             {
                 try
                 {
-                    _context.Update(category);
+                    _context.Categories.Update(category);
                     await _context.SaveChangesAsync();
                     TempData["ToastMessage"] = "تم تعديل الفئة بنجاح";
                     TempData["ToastType"] = "success";
@@ -107,6 +107,7 @@ namespace PharmacyIMS.Controllers
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var category = await _context.Categories

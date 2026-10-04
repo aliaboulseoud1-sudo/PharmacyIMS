@@ -1,3 +1,5 @@
+using PharmacyIMS.Models;
+
 namespace PharmacyIMS.Controllers
 {
     public class ProductsController : Controller
@@ -85,7 +87,7 @@ namespace PharmacyIMS.Controllers
 
             if (ModelState.IsValid)
             {
-                _context.Add(product);
+                _context.Products.Update(product);
                 await _context.SaveChangesAsync();
                 TempData["ToastMessage"] = "تم إضافة المنتج بنجاح";
                 TempData["ToastType"] = "success";
@@ -122,7 +124,7 @@ namespace PharmacyIMS.Controllers
             {
                 try
                 {
-                    _context.Update(product);
+                    _context.Products.Update(product);
                     await _context.SaveChangesAsync();
                     TempData["ToastMessage"] = "تم تعديل المنتج بنجاح";
                     TempData["ToastType"] = "success";
@@ -154,6 +156,7 @@ namespace PharmacyIMS.Controllers
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var product = await _context.Products

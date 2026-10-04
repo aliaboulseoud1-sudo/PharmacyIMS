@@ -1,11 +1,40 @@
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+// A global AuthorizeFilter means every controller/action requires a signed-in
+// user by default. AccountController's Login/AccessDenied actions are
+// explicitly marked [AllowAnonymous] so the login flow itself stays reachable.
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add(new AuthorizeFilter());
+});
 
 // Register EF Core DbContext with SQL Server
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// ---------- ASP.NET Core Identity (Authentication & Role-Based Access) ----------
+builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+    {
+        // Keep default password rules reasonably strict but not excessive
+        // for a coursework project; adjust as needed.
+        options.Password.RequiredLength = 8;
+        options.Password.RequireNonAlphanumeric = false;
+        options.SignIn.RequireConfirmedAccount = false;
+        options.Lockout.MaxFailedAccessAttempts = 5;
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+    })
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Account/Login";
+    options.LogoutPath = "/Account/Logout";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+    options.ExpireTimeSpan = TimeSpan.FromHours(8);
+    options.SlidingExpiration = true;
+});
 
 builder.Services.Configure<GeminiSettings>(builder.Configuration.GetSection("GeminiSettings"));
 
@@ -38,11 +67,20 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+// Authentication MUST run before Authorization so the current user is
+// resolved before the global [Authorize] filter evaluates.
+app.UseAuthentication();
 app.UseAuthorization();
 
-// Dashboard is now the landing page of the application
+// Dashboard is the landing page of the application
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Dashboard}/{action=Index}/{id?}");
+
+// ---------- Seed Identity roles & default demo users ----------
+using (var scope = app.Services.CreateScope())
+{
+    await DbInitializer.SeedRolesAndUsersAsync(scope.ServiceProvider);
+}
 
 app.Run();

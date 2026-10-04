@@ -1,5 +1,6 @@
 namespace PharmacyIMS.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class SuppliersController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -285,6 +286,7 @@ namespace PharmacyIMS.Controllers
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var supplier = await _context.Suppliers

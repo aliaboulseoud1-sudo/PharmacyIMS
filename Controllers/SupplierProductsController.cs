@@ -1,5 +1,6 @@
 namespace PharmacyIMS.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class SupplierProductsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -9,7 +10,6 @@ namespace PharmacyIMS.Controllers
             _context = context;
         }
 
-        // GET: SupplierProducts/Create?supplierId=5
         public async Task<IActionResult> Create(int supplierId)
         {
             var supplier = await _context.Suppliers.FindAsync(supplierId);
@@ -25,7 +25,6 @@ namespace PharmacyIMS.Controllers
             return View(vm);
         }
 
-        // POST: SupplierProducts/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(SupplierProductViewModel vm)
@@ -63,7 +62,6 @@ namespace PharmacyIMS.Controllers
             return RedirectToAction("Details", "Suppliers", new { id = vm.SupplierID });
         }
 
-        // GET: SupplierProducts/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
@@ -90,7 +88,6 @@ namespace PharmacyIMS.Controllers
             return View(vm);
         }
 
-        // POST: SupplierProducts/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, SupplierProductViewModel vm)
@@ -127,9 +124,9 @@ namespace PharmacyIMS.Controllers
             return RedirectToAction("Details", "Suppliers", new { id = link.SupplierID });
         }
 
-        // POST: SupplierProducts/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var link = await _context.SupplierProducts.FindAsync(id);

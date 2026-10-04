@@ -39,16 +39,22 @@
                         <i class="bi bi-box-seam me-2"></i> المنتجات
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link text-white @(currentController == "Suppliers" ? "active" : "")" asp-controller="Suppliers" asp-action="Index">
-                        <i class="bi bi-truck me-2"></i> الموردين
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-white @(currentController == "Purchases" ? "active" : "")" asp-controller="Purchases" asp-action="Index">
-                        <i class="bi bi-cart-plus me-2"></i> المشتريات
-                    </a>
-                </li>
+                @if (User.IsInRole("Admin"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link text-white @(currentController == "Suppliers" ? "active" : "")" asp-controller="Suppliers" asp-action="Index">
+                            <i class="bi bi-truck me-2"></i> الموردين
+                        </a>
+                    </li>
+                }
+                @if (User.IsInRole("Admin"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link text-white @(currentController == "Purchases" ? "active" : "")" asp-controller="Purchases" asp-action="Index">
+                            <i class="bi bi-cart-plus me-2"></i> المشتريات
+                        </a>
+                    </li>
+                }
                 <li class="nav-item">
                     <a class="nav-link text-white @(currentController == "Sales" ? "active" : "")" asp-controller="Sales" asp-action="Index">
                         <i class="bi bi-receipt me-2"></i> المبيعات
@@ -67,9 +73,39 @@
                 <button class="btn btn-outline-secondary d-lg-none" id="sidebarToggle">
                     <i class="bi bi-list"></i>
                 </button>
-                <span class="navbar-text ms-auto">
-                    <i class="bi bi-person-circle me-1"></i> صيدلية النموذج التعليمي
-                </span>
+
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    var roleLabel = User.IsInRole("Admin") ? "مدير النظام" : (User.IsInRole("Pharmacist") ? "صيدلي" : "مستخدم");
+                    var roleBadgeClass = User.IsInRole("Admin") ? "bg-danger" : "bg-primary";
+
+                    <div class="dropdown ms-auto">
+                        <button class="btn btn-light dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle fs-5"></i>
+                            <span class="d-none d-sm-inline">@User.Identity.Name</span>
+                            <span class="badge @roleBadgeClass">@roleLabel</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><h6 class="dropdown-header">@User.Identity.Name</h6></li>
+                            <li><hr class="dropdown-divider" /></li>
+                            <li>
+                                <form asp-controller="Account" asp-action="Logout" method="post">
+                                    <button type="submit" class="dropdown-item text-danger">
+                                        <i class="bi bi-box-arrow-right me-1"></i> تسجيل الخروج
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                }
+                else
+                {
+                    <span class="navbar-text ms-auto">
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-sm btn-primary">
+                            <i class="bi bi-box-arrow-in-left me-1"></i> تسجيل الدخول
+                        </a>
+                    </span>
+                }
             </nav>
 
             <main class="container-fluid py-4 px-4">
