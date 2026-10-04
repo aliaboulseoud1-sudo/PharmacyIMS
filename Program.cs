@@ -38,7 +38,11 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 builder.Services.Configure<GeminiSettings>(builder.Configuration.GetSection("GeminiSettings"));
 
-// Builds the live DB-grounded context string injected into AI prompts
+// Gives services access to the current request's User (needed for role-aware AI context)
+builder.Services.AddHttpContextAccessor();
+
+// Builds the live DB-grounded context string injected into AI prompts.
+// Role-aware: financial data is only included for Admin users.
 builder.Services.AddScoped<IPharmacyContextService, PharmacyContextService>();
 
 // HttpClient-backed Gemini implementation of the assistant
@@ -77,7 +81,9 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Dashboard}/{action=Index}/{id?}");
 
-// ---------- Seed Identity roles & default demo users ----------
+// ---------- Seed Identity roles & initial users ----------
+// Credentials come from the "InitialSeed" configuration section (appsettings.json,
+// User Secrets, or environment variables such as InitialSeed__AdminUser__Password).
 using (var scope = app.Services.CreateScope())
 {
     await DbInitializer.SeedRolesAndUsersAsync(scope.ServiceProvider);

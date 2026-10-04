@@ -2,20 +2,29 @@ namespace PharmacyIMS.Data
 {
     public static class DbInitializer
     {
+        private const string SeedSectionName = "InitialSeed";
+
         private static readonly string[] Roles = { "Admin", "Pharmacist" };
 
-        private static readonly (string Email, string Password, string Role)[] DefaultUsers =
+        private static readonly (string SectionKey, string Role)[] SeedAccounts =
         {
-            ("admin@pharmacy.com", "Admin@123456", "Admin"),
-            ("user@pharmacy.com", "User@123456", "Pharmacist")
+            ("AdminUser", "Admin"),
+            ("StaffUser", "Pharmacist")
         };
 
         public static async Task SeedRolesAndUsersAsync(IServiceProvider serviceProvider)
         {
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
+            var configuration = serviceProvider.GetRequiredService<IConfiguration>();
             var logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(DbInitializer));
 
+            await SeedRolesAsync(roleManager, logger);
+            await SeedUsersAsync(userManager, configuration, logger);
+        }
+
+        private static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager, ILogger logger)
+        {
             foreach (var role in Roles)
             {
                 if (!await roleManager.RoleExistsAsync(role))
@@ -32,9 +41,27 @@ namespace PharmacyIMS.Data
                     }
                 }
             }
+        }
 
-            foreach (var (email, password, role) in DefaultUsers)
+        private static async Task SeedUsersAsync(
+            UserManager<IdentityUser> userManager,
+            IConfiguration configuration,
+            ILogger logger)
+        {
+            foreach (var (sectionKey, role) in SeedAccounts)
             {
+                var section = configuration.GetSection($"{SeedSectionName}:{sectionKey}");
+                var email = section["Email"]?.Trim();
+                var password = section["Password"];
+
+                if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+                {
+                    logger.LogWarning(
+                        "Skipping seed for role {Role}: '{Section}:{Key}' needs both Email and Password in configuration.",
+                        role, SeedSectionName, sectionKey);
+                    continue;
+                }
+
                 var existingUser = await userManager.FindByEmailAsync(email);
 
                 if (existingUser == null)
